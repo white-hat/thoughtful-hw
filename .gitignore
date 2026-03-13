@@ -1,0 +1,18 @@
+# Virtual environment
+.venv/
+
+# Python bytecode
+__pycache__/
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/
+.ty/
+
+# Coverage artifacts
+.coverage
+htmlcov/
+
+# Build artifacts
+build/
+dist/
