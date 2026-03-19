@@ -1,4 +1,4 @@
-.PHONY: help setup format format-check lint test test-coverage build
+.PHONY: help setup format format-check lint test test-coverage build serve
 
 help:
 	@printf "Available targets:\n"
@@ -31,3 +31,6 @@ test-coverage:
 
 build:
 	uv build
+
+serve:  ## Start the development server
+	uv run uvicorn package_sorter.api:app --reload
