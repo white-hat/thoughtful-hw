@@ -2,12 +2,16 @@ from importlib.resources import files
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from starlette.templating import Jinja2Templates
 
 from package_sorter.sorting import sort
 
 app = FastAPI(title="Package Sorter")
+app.mount(
+    "/static", StaticFiles(directory=str(files("package_sorter").joinpath("static"))), name="static"
+)
 
 templates = Jinja2Templates(directory=str(files("package_sorter").joinpath("templates")))
 
