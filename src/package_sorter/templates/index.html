@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Package Sorter</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Package Sorter</h1>
+      <p>Enter package dimensions (cm) and mass (kg) to determine the distribution stack.</p>
+
+      <form id="sort-form">
+        <div class="grid">
+          <label>
+            Width (cm)
+            <input
+              type="number"
+              name="width"
+              placeholder="e.g. 10"
+              required
+              min="0.01"
+              step="any"
+            />
+          </label>
+          <label>
+            Height (cm)
+            <input
+              type="number"
+              name="height"
+              placeholder="e.g. 10"
+              required
+              min="0.01"
+              step="any"
+            />
+          </label>
+        </div>
+        <div class="grid">
+          <label>
+            Length (cm)
+            <input
+              type="number"
+              name="length"
+              placeholder="e.g. 10"
+              required
+              min="0.01"
+              step="any"
+            />
+          </label>
+          <label>
+            Mass (kg)
+            <input
+              type="number"
+              name="mass"
+              placeholder="e.g. 5"
+              required
+              min="0.01"
+              step="any"
+            />
+          </label>
+        </div>
+        <button type="submit">Sort Package</button>
+      </form>
+
+      <div id="result" style="display: none">
+        <hr />
+        <h2>Result: <strong id="result-stack"></strong></h2>
+        <p id="result-detail"></p>
+      </div>
+
+      <div id="error" style="display: none">
+        <hr />
+        <p id="error-message" style="color: var(--pico-color-red-500)"></p>
+      </div>
+    </main>
+
+    <script>
+      const STACK_DESCRIPTIONS = {
+        STANDARD: "Package is neither bulky nor heavy — routed to standard processing.",
+        SPECIAL: "Package is bulky or heavy (but not both) — routed to special handling.",
+        REJECTED: "Package is both bulky and heavy — rejected from automated sorting.",
+      };
+
+      document.getElementById("sort-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const resultDiv = document.getElementById("result");
+        const errorDiv = document.getElementById("error");
+        resultDiv.style.display = "none";
+        errorDiv.style.display = "none";
+
+        const form = event.target;
+        const payload = {
+          width: parseFloat(form.width.value),
+          height: parseFloat(form.height.value),
+          length: parseFloat(form.length.value),
+          mass: parseFloat(form.mass.value),
+        };
+
+        try {
+          const response = await fetch("/sort", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            document.getElementById("result-stack").textContent = data.stack;
+            document.getElementById("result-detail").textContent =
+              STACK_DESCRIPTIONS[data.stack] ?? "";
+            resultDiv.style.display = "block";
+          } else {
+            const data = await response.json();
+            document.getElementById("error-message").textContent =
+              data.detail ?? "An unexpected error occurred.";
+            errorDiv.style.display = "block";
+          }
+        } catch {
+          document.getElementById("error-message").textContent =
+            "Failed to reach the server. Please try again.";
+          errorDiv.style.display = "block";
+        }
+      });
+    </script>
+  </body>
+</html>
